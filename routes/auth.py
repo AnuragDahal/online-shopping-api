@@ -37,6 +37,6 @@ async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = De
 # GENERATE A JWT TOKEN AND RETURN IT
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = jwt_token.create_access_token(
-        data={"sub": user.Email}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
