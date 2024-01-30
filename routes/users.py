@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from config import database, models, schemas
 from sqlalchemy.orm import Session
 from typing import List
+from . import oauth
 
 router = APIRouter(
     prefix="/users",
@@ -37,14 +38,12 @@ async def create_user(request: schemas.UserSignup, db: Session = Depends(databas
 #         raise HTTPException(status_code=404, detail="Incorrect password")
 #     return {"message": "User logged in successfully"}
 
-
 @router.get("/GetAllUsers", response_model=List[schemas.ShowAllUser], status_code=status.HTTP_200_OK)
-async def get_all_users(db: Session = Depends(database.get_db)):
+async def get_all_users(db: Session = Depends(database.get_db), current_user: schemas.User = Depends(oauth.get_current_user)):
     user = db.query(models.User).all()
     if not user:
         raise HTTPException(status_code=404, detail="No users found")
     return user
-
 # u
 
 
