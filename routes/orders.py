@@ -14,7 +14,7 @@ router = APIRouter(
 async def create_order(request: schemas.Order, orders: List[schemas.ProductOrder], db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
     for order in orders:
         check_user = db.query(models.User).filter(
-            models.User.user_id == current_user.user_id).first()
+            models.User.user_id == request.user_id).first()
         if not check_user:
             raise HTTPException(status_code=404, detail="User not found")
 
