@@ -16,10 +16,10 @@ async def create_user(request: schemas.UserSignup, db: Session = Depends(databas
     # Check if the email already exists
     if db.query(models.User).filter(models.User.email == request.email).first():
         raise HTTPException(status_code=400, detail="Email already exists")
-
+    hashed_password = hash.Encryption.bcrypt(request.password)
     # Create a new user
     new_user = models.User(
-        name=request.name, email=request.email, password=request.password)
+        name=request.name, email=request.email, password=hashed_password)
 
     # Add the new user to the database
     db.add(new_user)
