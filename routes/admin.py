@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from config import database, models, schemas
 from sqlalchemy.orm import Session
-from . import users , oauth
+from . import oauth, users
 from typing import List
 
 router = APIRouter(
@@ -10,8 +10,9 @@ router = APIRouter(
 
 # Update user to admin
 
+
 @router.put("/update-user/{admin_id}", status_code=status.HTTP_202_ACCEPTED, tags=["Admin"])
-async def update_user_to_admin(admin_id: int, user_id: int, db: Session = Depends(database.get_db)):
+async def update_user_to_admin(admin_id: int, user_id: int, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
     admin_data = db.query(models.User).filter(
         models.User.user_id == admin_id).first()
     if admin_data and admin_data.is_admin:
@@ -31,7 +32,7 @@ async def update_user_to_admin(admin_id: int, user_id: int, db: Session = Depend
 
 
 @router.get("/get-allorders/{admin_id}",  status_code=status.HTTP_200_OK)
-async def get_all_orders(admin_id: int, db: Session = Depends(database.get_db)):
+async def get_all_orders(admin_id: int, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
     user_data = users.is_user(admin_id, db)
     if not user_data:
         return {"message": "Invalid admin/user id please signup first and login as admin"}
@@ -49,7 +50,7 @@ async def get_all_orders(admin_id: int, db: Session = Depends(database.get_db)):
 
 
 @router.put("/order/update/status/{order_id}", response_model=schemas.OrderStatus, status_code=status.HTTP_200_OK)
-async def update_order_status(order_id: int, admin_id: int, request: schemas.OrderStatus, db: Session = Depends(database.get_db)):
+async def update_order_status(order_id: int, admin_id: int, request: schemas.OrderStatus, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
     # user_data = users.is_user(admin_id, db)
     # if not user_data:
     #     return {"message": "Invalid admin id please signup first and login as admin"}
