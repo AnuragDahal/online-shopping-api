@@ -66,3 +66,14 @@ async def update_order_status(order_id: int, admin_id: int, request: schemas.Ord
         db.refresh(order)
         return order
     return {"message": "You are not an admin"}
+
+# get ordres by status [admin]
+# status_list = ["pending", "delivered", "cancelled"]
+
+@router.get("/getorders-bystatus/{status}", response_model=List[schemas.Order], status_code=status.HTTP_200_OK)
+async def get_orders_by_status(status: str, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
+    orders = db.query(models.Order).filter(models.Order.status == status).all()
+    if not orders:
+        raise HTTPException(
+            status_code=404, detail=f"No orders found of {status} status")
+    return orders
