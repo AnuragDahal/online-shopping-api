@@ -45,11 +45,24 @@ async def get_all_users(db: Session = Depends(database.get_db), current_user: sc
         raise HTTPException(status_code=404, detail="No users found")
     return user
 
+# know the user_details [ for all users]
+
 
 @router.get("/getuser/{email}", response_model=schemas.ShowParticularUser, status_code=status.HTTP_200_OK)
 async def get_user(email: str, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
     user = db.query(models.User).filter(
         models.User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+# get user details with user id
+
+
+@router.get("/getuserbyid/{user_id}", response_model=schemas.ShowParticularUser, status_code=status.HTTP_200_OK)
+async def get_user_by_id(user_id: int, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
+    user = db.query(models.User).filter(
+        models.User.user_id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
