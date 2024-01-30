@@ -21,10 +21,10 @@ router = APIRouter(
 )
 
 
-@router.post("/login", status_code=status.HTTP_200_OK)
+@router.post("/login", status_code=status.HTTP_200_OK,)
 async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
 
-    user = db.query(models.User).filter_by(Email=request.username).first()
+    user = db.query(models.User).filter_by(email=request.username).first()
 
     if not user:
         raise HTTPException(

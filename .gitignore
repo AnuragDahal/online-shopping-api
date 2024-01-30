@@ -6,6 +6,7 @@ __pycache__/
 .env
 pipfile.lock
 pizzashop.db
+tempcoderunner.py
 
 # Ignore temp files
 /temp
