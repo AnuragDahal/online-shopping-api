@@ -1,0 +1,11 @@
+# Ignore Python cache directories and files
+__pycache__/
+
+
+# Ignore .env files
+.env
+pipfile.lock
+pizzashop.db
+
+# Ignore temp files
+/temp
