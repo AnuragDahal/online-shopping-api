@@ -38,13 +38,21 @@ async def create_user(request: schemas.UserSignup, db: Session = Depends(databas
 #         raise HTTPException(status_code=404, detail="Incorrect password")
 #     return {"message": "User logged in successfully"}
 
-@router.get("/GetAllUsers", response_model=List[schemas.ShowAllUser], status_code=status.HTTP_200_OK)
+@router.get("/getallusers", response_model=List[schemas.ShowAllUser], status_code=status.HTTP_200_OK)
 async def get_all_users(db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
     user = db.query(models.User).all()
     if not user:
         raise HTTPException(status_code=404, detail="No users found")
     return user
-# u
+
+
+@router.get("/getuser/{email}", response_model=schemas.ShowParticularUser, status_code=status.HTTP_200_OK)
+async def get_user(email: str, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
+    user = db.query(models.User).filter(
+        models.User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
 def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):

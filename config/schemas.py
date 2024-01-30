@@ -59,13 +59,14 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: str | None = None
 
-# class ShowParticularUser(BaseModel):
-#     user_id: int
-#     name: str
-#     email: str
 
-#     class Config:
-#         from_attributes = True
+class ShowParticularUser(BaseModel):
+    user_id: int
+    name: str
+    email: str
+
+    class Config:
+        from_attributes = True
 
 
 # class UserOrders(BaseModel):
