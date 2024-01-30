@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from config import database, models, schemas
 from sqlalchemy.orm import Session
-from routes import users
+from . import users , oauth
 from typing import List
 
 router = APIRouter(
@@ -9,7 +9,6 @@ router = APIRouter(
 )
 
 # Update user to admin
-
 
 @router.put("/update-user/{admin_id}", status_code=status.HTTP_202_ACCEPTED, tags=["Admin"])
 async def update_user_to_admin(admin_id: int, user_id: int, db: Session = Depends(database.get_db)):

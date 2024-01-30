@@ -39,7 +39,7 @@ async def create_user(request: schemas.UserSignup, db: Session = Depends(databas
 #     return {"message": "User logged in successfully"}
 
 @router.get("/GetAllUsers", response_model=List[schemas.ShowAllUser], status_code=status.HTTP_200_OK)
-async def get_all_users(db: Session = Depends(database.get_db), current_user: schemas.User = Depends(oauth.get_current_user)):
+async def get_all_users(db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
     user = db.query(models.User).all()
     if not user:
         raise HTTPException(status_code=404, detail="No users found")
