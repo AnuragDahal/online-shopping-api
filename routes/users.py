@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from config import database, models, schemas
 from sqlalchemy.orm import Session
 from typing import List
-from . import oauth
+from . import oauth, hash
 
 router = APIRouter(
     prefix="/users",
