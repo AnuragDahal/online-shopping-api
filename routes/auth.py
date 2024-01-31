@@ -5,6 +5,8 @@ from . import hash, jwt_token
 from datetime import timedelta
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
+
 import os
 
 load_dotenv()
@@ -39,4 +41,10 @@ async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = De
     access_token = jwt_token.create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+# Set the cookie with the token
+    response = JSONResponse(
+        content={"access_token": access_token, "token_type": "bearer"})
+    response.set_cookie(key="token", value=access_token,
+                        expires=access_token_expires.total_seconds(), httponly=True, secure=True)
+
+    return response
