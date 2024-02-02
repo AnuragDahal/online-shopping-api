@@ -51,15 +51,6 @@ class OrderStatus(BaseModel):
         from_attributes = True
 
 
-class ProductOrder(BaseModel):
-    product_id: int
-    product_name: str
-    quantity: int
-
-    class Config:
-        from_attributes = True
-
-
 class Token(BaseModel):
     access_token: str
     token_type: str
