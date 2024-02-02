@@ -22,11 +22,8 @@ class Order(Base):
 
     order_id: Mapped[int] = Column(Integer, primary_key=True)
     user_id: Mapped[int] = Column(Integer, ForeignKey('users.user_id'))
-    product_name: Mapped[str] = Column(String)
-    product_id: Mapped[int] = Column(Integer)
-    quantity: Mapped[int] = Column(Integer)
     total: Mapped[int] = Column(Integer)
     status: Mapped[str] = Column(String, default="pending")
 
     # Define a many-to-one relationship to User
-    user = relationship("User", back_populates="Order")
+    user = relationship("User", back_populates="orders")

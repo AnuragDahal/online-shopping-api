@@ -13,20 +13,16 @@ router = APIRouter(
 
 @router.put("/update-user/{admin_id}", status_code=status.HTTP_202_ACCEPTED, tags=["Admin"])
 async def update_user_to_admin(admin_id: int, user_id: int, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
-    admin_data = db.query(models.User).filter(
-        models.User.user_id == admin_id).first()
-    if admin_data and admin_data.is_admin:
-        user_data = db.query(models.User).filter(
-            models.User.user_id == user_id).first()
+    admin_data = users.check_isadmin(admin_id, db)
+    if admin_data:
+        user_data = users.is_user(user_id, db)
         if user_data:
             user_data.is_admin = True
             db.add(user_data)
             db.commit()
-            return {"message": "User updated to admin successfully"}
-        else:
-            return {"message": "User not found"}
-    return {"message": "You are not admin"}
-
+            db.refresh(user_data)
+            return user_data
+    return {"message": "You are not an admin"}
 
 # get all orders only by admin
 
@@ -69,6 +65,7 @@ async def update_order_status(order_id: int, admin_id: int, request: schemas.Ord
 
 # get ordres by status [admin]
 # status_list = ["pending", "delivered", "cancelled"]
+
 
 @router.get("/getorders-bystatus/{status}", response_model=List[schemas.Order], status_code=status.HTTP_200_OK)
 async def get_orders_by_status(status: str, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):

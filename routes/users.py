@@ -10,6 +10,13 @@ router = APIRouter(
 )
 
 
+def is_user(user_id: int, db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if user:
+        return user
+    return False
+
+
 @router.post("/Signup", status_code=status.HTTP_201_CREATED)
 async def create_user(request: schemas.UserSignup, db: Session = Depends(database.get_db)):
 
@@ -66,18 +73,3 @@ async def get_user_by_id(user_id: int, db: Session = Depends(database.get_db), c
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-
-
-def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(
-        models.User.user_id == admin_id).first()
-    if user and user.is_admin == True:
-        return True
-    return False
-
-
-def is_user(user_id: int, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.user_id == user_id).first()
-    if user:
-        return True
-    return False

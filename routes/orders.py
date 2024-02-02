@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from config import database, models, schemas
 from sqlalchemy.orm import Session
-from .import users, oauth
+from .import users, oauth, auth
 from typing import List
 
 
@@ -11,28 +11,19 @@ router = APIRouter(
 
 
 @router.post("/CreateOrder", status_code=status.HTTP_201_CREATED)
-async def create_order(request: schemas.Order, orders: List[schemas.ProductOrder], db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
-    for order in orders:
-        check_user = db.query(models.User).filter(
-            models.User.user_id == request.user_id).first()
-        if not check_user:
-            raise HTTPException(status_code=404, detail="User not found")
-
+async def create_order(request: schemas.Order, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
+    user = users.is_user(request.user_id, db)
+    if user:
         new_order = models.Order(
-            user_id=request.user_id,
-            product_name=order.product_name,
-            product_id=order.product_id,
-            quantity=request.quantity,
-            total=request.total
-        )
 
+        )
         if not new_order:
             raise HTTPException(status_code=400, detail="Invalid order data")
 
         db.add(new_order)
-
-    db.commit()
-    return {"message": "Your orders have been placed successfully"}
+        db.commit()
+        return {"message": "Order has been placed successfully"}
+    return {"message": "Invalid user id please signup first"}
 
 # get all orders of a particular user
 

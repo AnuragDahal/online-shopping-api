@@ -27,29 +27,35 @@ TOKEN_TYPE = "bearer"
 TOKEN_KEY = "token"
 
 
-async def validate_user(request: schemas.UserLogin, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter_by(email=request.email).first()
+def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(
+        models.User.user_id == admin_id).first()
+    if user and user.is_admin == True:
+        return True
+    return False
 
-    if not user or not hash.Encryption.check_pw(user.password, request.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Credentials"
-        )
-    return True
+
+def validate_email(email: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return user
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
 async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = validate_user(db, request.username, request.password)
+    user = validate_email(request.username, db)
+    if user:
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = jwt_token.create_access_token(
+            data={"sub": user.email}, expires_delta=access_token_expires
+        )
 
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = jwt_token.create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
-    )
+        response = JSONResponse(
+            content={"access_token": access_token, "token_type": TOKEN_TYPE}
+        )
+        response.set_cookie(key=TOKEN_KEY, value=access_token,
+                            expires=access_token_expires.total_seconds(), httponly=True, secure=True)
 
-    response = JSONResponse(
-        content={"access_token": access_token, "token_type": TOKEN_TYPE}
-    )
-    response.set_cookie(key=TOKEN_KEY, value=access_token,
-                        expires=access_token_expires.total_seconds(), httponly=True, secure=True)
-
-    return response
+        return response
+    return {"message": "Invalid credentials"}
