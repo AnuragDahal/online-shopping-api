@@ -25,16 +25,20 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 def verify_token(token: str):
     try:
-        credentials_exception = HTTPException(
+        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials: 'sub' claim missing",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        token_data = schemas.TokenData(email=email)
+        return token_data
+    except JWTError as e:
+        print(f"JWTError: {e}")
+        raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-        token_data = schemas.TokenData(email=email)
-    except JWTError:
-        raise credentials_exception
-    # return token_data
