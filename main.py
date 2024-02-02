@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from config import models, database
-from routes import orders, users, admin, auth, cookies
+from routes import orders, users, admin, auth
 
 app = FastAPI(
     title="Shopping Cart Api",
@@ -12,4 +12,3 @@ app.include_router(orders.router)
 app.include_router(users.router)
 app.include_router(admin.router)
 app.include_router(auth.router)
-app.include_router(cookies.router)
