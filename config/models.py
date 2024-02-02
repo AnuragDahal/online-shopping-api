@@ -14,7 +14,7 @@ class User(Base):
     is_admin: Mapped[bool] = Column(Boolean, default=False)
 
     # Define a one-to-many relationship to Order
-    Order = relationship("Order", back_populates="user")
+    orders = relationship("Order", back_populates="users")
 
 
 class Order(Base):
@@ -22,8 +22,9 @@ class Order(Base):
 
     order_id: Mapped[int] = Column(Integer, primary_key=True)
     user_id: Mapped[int] = Column(Integer, ForeignKey('users.user_id'))
+    product_id: Mapped[int] = Column(Integer)
     total: Mapped[int] = Column(Integer)
     status: Mapped[str] = Column(String, default="pending")
 
     # Define a many-to-one relationship to User
-    user = relationship("User", back_populates="orders")
+    users = relationship("User", back_populates="orders")

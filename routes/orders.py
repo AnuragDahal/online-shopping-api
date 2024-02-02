@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Cookie
 from config import database, models, schemas
 from sqlalchemy.orm import Session
-from .import users, oauth, auth
+from .import users, oauth, auth, jwt_token
 from typing import List
-
 
 router = APIRouter(
     tags=["Orders"]
@@ -11,19 +10,43 @@ router = APIRouter(
 
 
 @router.post("/CreateOrder", status_code=status.HTTP_201_CREATED)
-async def create_order(request: schemas.Order, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
-    user = users.is_user(request.user_id, db)
-    if user:
-        new_order = models.Order(
+async def create_order(req: schemas.Order, request: Request, db: Session = Depends(database.get_db)):
+    try:
+        token_cookie = str(request._cookies.get("token"))
+        print(request._cookies.get("token"))
 
-        )
-        if not new_order:
-            raise HTTPException(status_code=400, detail="Invalid order data")
+        if token_cookie:
+            check_cookie = jwt_token.verify_token(token_cookie)
 
-        db.add(new_order)
-        db.commit()
-        return {"message": "Order has been placed successfully"}
-    return {"message": "Invalid user id please signup first"}
+            if check_cookie:
+                user = users.is_user(req.user_id, db)
+
+                if user:
+                    new_order = models.Order(
+                        user_id=req.user_id,
+                        order_id=req.order_id,
+                        product_id=req.product_id,
+                        total=req.total
+                    )
+
+                    if not new_order:
+                        raise HTTPException(
+                            status_code=400, detail="Invalid order data")
+
+                    db.add(new_order)
+                    db.commit()
+                    return {"message": "Order has been placed successfully"}
+                else:
+                    return {"message": "Invalid user id, please signup first"}
+            else:
+                return {"message": "Invalid token"}
+        else:
+            return {"message": "Token not present in the cookie"}
+
+    except Exception as e:
+        # Handle other exceptions or log them
+        print(f"Error: {e}")
+        return {"message": "An error occurred while processing the request"}
 
 # get all orders of a particular user
 

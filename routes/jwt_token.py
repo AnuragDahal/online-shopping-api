@@ -1,8 +1,9 @@
+from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 from config import schemas
 import os
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -22,8 +23,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def verify_token(token: str, credentials_exception):
+def verify_token(token: str):
     try:
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
         payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:

@@ -37,8 +37,8 @@ def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
 
 def validate_email(email: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == email).first()
-    if user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+    if not user:
+        raise HTTPException(status_code=400, detail="Email not found")
     return user
 
 
@@ -55,7 +55,7 @@ async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = De
             content={"access_token": access_token, "token_type": TOKEN_TYPE}
         )
         response.set_cookie(key=TOKEN_KEY, value=access_token,
-                            expires=access_token_expires.total_seconds(), httponly=True, secure=True)
+                            expires=access_token_expires.total_seconds())
 
         return response
     return {"message": "Invalid credentials"}
