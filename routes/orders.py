@@ -13,8 +13,6 @@ router = APIRouter(
 async def create_order(req: schemas.Order, request: Request, db: Session = Depends(database.get_db)):
     try:
         token_cookie = str(request._cookies.get("token"))
-        print(request._cookies.get("token"))
-
         if token_cookie:
             check_cookie = jwt_token.verify_token(token_cookie)
 

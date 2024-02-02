@@ -35,8 +35,7 @@ def verify_token(token: str):
             )
         token_data = schemas.TokenData(email=email)
         return token_data
-    except JWTError as e:
-        print(f"JWTError: {e}")
+    except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
