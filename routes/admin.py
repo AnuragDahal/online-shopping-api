@@ -42,7 +42,7 @@ async def get_all_orders(admin_id: int, db: Session = Depends(database.get_db), 
     return {"message": "You are not an admin"}
 
 
-# uodate order status by admin
+# update order status by admin
 
 
 @router.put("/order/update/status/{order_id}", response_model=schemas.OrderStatus, status_code=status.HTTP_200_OK)
@@ -74,3 +74,4 @@ async def get_orders_by_status(status: str, db: Session = Depends(database.get_d
         raise HTTPException(
             status_code=404, detail=f"No orders found of {status} status")
     return orders
+

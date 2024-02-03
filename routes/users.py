@@ -3,7 +3,7 @@ from config import database, models, schemas
 from sqlalchemy.orm import Session
 from typing import List
 from . import oauth, hash
-
+from .jwt_token import verify_token
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
@@ -46,7 +46,7 @@ async def create_user(request: schemas.UserSignup, db: Session = Depends(databas
 #     return {"message": "User logged in successfully"}
 
 @router.get("/getallusers", response_model=List[schemas.ShowAllUser], status_code=status.HTTP_200_OK)
-async def get_all_users(db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
+async def get_all_users(db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
     user = db.query(models.User).all()
     if not user:
         raise HTTPException(status_code=404, detail="No users found")
@@ -56,7 +56,7 @@ async def get_all_users(db: Session = Depends(database.get_db), current_user: sc
 
 
 @router.get("/getuser/{email}", response_model=schemas.ShowParticularUser, status_code=status.HTTP_200_OK)
-async def get_user(email: str, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
+async def get_user(email: str, db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
     user = db.query(models.User).filter(
         models.User.email == email).first()
     if not user:
@@ -67,7 +67,7 @@ async def get_user(email: str, db: Session = Depends(database.get_db), current_u
 
 
 @router.get("/getuserbyid/{user_id}", response_model=schemas.ShowParticularUser, status_code=status.HTTP_200_OK)
-async def get_user_by_id(user_id: int, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
+async def get_user_by_id(user_id: int, db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
     user = db.query(models.User).filter(
         models.User.user_id == user_id).first()
     if not user:

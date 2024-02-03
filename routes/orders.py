@@ -6,12 +6,13 @@ from .jwt_token import verify_token
 from typing import List
 
 router = APIRouter(
-    tags=["Orders"]
+    tags=["Orders"],
+    dependencies=[Depends(verify_token)]
 )
 
 
 @router.post("/CreateOrder", status_code=status.HTTP_201_CREATED)
-async def create_order(req: schemas.Order, request: Request, db: Session = Depends(database.get_db), token: Session = Depends(verify_token)):
+async def create_order(req: schemas.Order, request: Request, db: Session = Depends(database.get_db)):
     try:
         # token_cookie = str(request._cookies.get("token"))
         # if token_cookie:
@@ -48,6 +49,7 @@ async def create_order(req: schemas.Order, request: Request, db: Session = Depen
         return {"message": "An error occurred while processing the request"}
 
 # get all orders of a particular user
+#current_user: is a dependency injection or a middleware that checks if the user is logged in or not
 
 
 @router.get("/user/order/{user_id}", status_code=status.HTTP_200_OK)
