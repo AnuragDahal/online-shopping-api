@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, Mapped
 from .database import Base
+from datetime import datetime
 
 
 class User(Base):
@@ -10,7 +11,7 @@ class User(Base):
     name: Mapped[str] = Column(String)
     email: Mapped[str] = Column(String, nullable=False)
     password: Mapped[str] = Column(String)
-    time: Mapped[str] = Column(String)
+    time: Mapped[str] = Column(String, default=datetime.utcnow)
     is_admin: Mapped[bool] = Column(Boolean, default=False)
 
     # Define a one-to-many relationship to Order
