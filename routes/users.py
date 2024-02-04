@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from config import database, models, schemas
 from sqlalchemy.orm import Session
 from typing import List
@@ -10,11 +10,22 @@ router = APIRouter(
 )
 
 
-def is_user(user_id: int, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.user_id == user_id).first()
-    if user:
-        return user
-    return False
+def is_user(req: Request, user_id: int, db: Session = Depends(database.get_db)):
+    try:
+        user = db.query(models.User).filter(
+            models.User.user_id == user_id).first()
+        if user:
+            return user
+    except Exception as e:
+        response = {
+            "errors": e,
+            "message": "User not found",
+            "status": 500
+        }
+        raise HTTPException(
+            status_code=response.get(
+                "status"), detail=response)
+    return response
 
 
 @router.post("/Signup", status_code=status.HTTP_201_CREATED)
@@ -33,17 +44,6 @@ async def create_user(request: schemas.UserSignup, db: Session = Depends(databas
     db.commit()
     return {"message": "User created successfully"}
 
-
-# @router.post("/login", status_code=status.HTTP_200_OK)
-# async def login_user(request: schemas.UserLogin, db: Session = Depends(database.get_db)):
-
-#     user = db.query(models.User).filter(
-#         models.User.email == request.email).first()
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     if not user.password == request.password:
-#         raise HTTPException(status_code=404, detail="Incorrect password")
-#     return {"message": "User logged in successfully"}
 
 @router.get("/getallusers", response_model=List[schemas.ShowAllUser], status_code=status.HTTP_200_OK)
 async def get_all_users(db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
