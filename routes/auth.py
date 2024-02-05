@@ -66,7 +66,7 @@ async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = De
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(req: Request, res: Response):
+async def logout(res: Response):
     try:
         res.delete_cookie(TOKEN_KEY)
         return {"message": "Logged out"}
