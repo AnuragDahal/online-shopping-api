@@ -10,22 +10,15 @@ router = APIRouter(
 )
 
 
-def is_user(req: Request, user_id: int, db: Session = Depends(database.get_db)):
+def is_user(user_id: int, db: Session = Depends(database.get_db)):
     try:
         user = db.query(models.User).filter(
             models.User.user_id == user_id).first()
         if user:
             return user
     except Exception as e:
-        response = {
-            "errors": e,
-            "message": "User not found",
-            "status": 500
-        }
         raise HTTPException(
-            status_code=response.get(
-                "status"), detail=response)
-    return response
+            status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=str(e))
 
 
 @router.post("/Signup", status_code=status.HTTP_201_CREATED)
