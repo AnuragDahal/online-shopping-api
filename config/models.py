@@ -21,10 +21,12 @@ class User(Base):
 class Order(Base):
     __tablename__ = 'orders'
 
-    order_id: Mapped[int] = Column(Integer, primary_key=True,)
+    order_id: Mapped[int] = Column(
+        Integer, primary_key=True)
     user_id: Mapped[int] = Column(Integer, ForeignKey('users.user_id'))
     product_id: Mapped[int] = Column(Integer)
     total: Mapped[int] = Column(Integer)
     status: Mapped[str] = Column(String, default="pending")
+    quantity: Mapped[int] = Column(Integer, default=1)
     # Define a many-to-one relationship to User
     users = relationship("User", back_populates="orders")
