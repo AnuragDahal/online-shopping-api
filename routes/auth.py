@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Request, Response, status
+from fastapi import APIRouter, Depends, status, HTTPException, Request
 from sqlalchemy.orm import Session
 from config import models, database, schemas
 from . import hash, jwt_token
@@ -54,8 +55,20 @@ async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = De
         response = JSONResponse(
             content={"access_token": access_token, "token_type": TOKEN_TYPE}
         )
+
         response.set_cookie(key=TOKEN_KEY, value=access_token,
                             expires=access_token_expires.total_seconds())
 
         return response
     return {"message": "Invalid credentials"}
+
+#  Logout
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+async def logout(req: Request, res: Response):
+    try:
+        res.delete_cookie(TOKEN_KEY)
+        return {"message": "Logged out"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
