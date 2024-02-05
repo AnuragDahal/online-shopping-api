@@ -26,6 +26,5 @@ class Order(Base):
     product_id: Mapped[int] = Column(Integer)
     total: Mapped[int] = Column(Integer)
     status: Mapped[str] = Column(String, default="pending")
-
     # Define a many-to-one relationship to User
     users = relationship("User", back_populates="orders")

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class UserSignup(BaseModel):
@@ -6,7 +7,7 @@ class UserSignup(BaseModel):
     name: str
     email: str
     password: str
-    time: str
+    time: Optional[str]
 
     class Config:
         from_attributes = True
