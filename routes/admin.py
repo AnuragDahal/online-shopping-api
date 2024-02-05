@@ -1,7 +1,8 @@
+from fastapi import HTTPException, Depends, status
 from fastapi import APIRouter, Depends, HTTPException, status
 from config import database, models, schemas
 from sqlalchemy.orm import Session
-from . import oauth, users
+from . import oauth, users, auth
 from typing import List
 
 router = APIRouter(
@@ -11,20 +12,17 @@ router = APIRouter(
 # Update user to admin
 
 
-@router.put("/update-user/{admin_id}", status_code=status.HTTP_202_ACCEPTED, tags=["Admin"])
-async def update_user_to_admin(admin_id: int, user_id: int, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
-    admin_data = users.check_isadmin(admin_id, db)
-    if admin_data:
+@router.put("/update-to-admin/{user_id}", status_code=status.HTTP_200_OK)
+async def UPDATEADMIN(user_id: int, admin_id: int, db: Session = Depends(database.get_db)):
+    try:
+        admin_data = auth.check_isadmin(admin_id, db)
         user_data = users.is_user(user_id, db)
-        if user_data:
-            user_data.is_admin = True
-            db.add(user_data)
-            db.commit()
-            db.refresh(user_data)
-            return user_data
-    return {"message": "You are not an admin"}
-
-# get all orders only by admin
+        if admin_data and user_data:
+            user_update = db.query(models.User).filter(
+                models.User.user_id == user_id).first()
+    except Exception as e:
+        raise HTTPException(status_code=400,
+                            detail=f"{e}, Error updating user to admin")
 
 
 @router.get("/get-allorders/{admin_id}",  status_code=status.HTTP_200_OK)
@@ -32,7 +30,7 @@ async def get_all_orders(admin_id: int, db: Session = Depends(database.get_db), 
     user_data = users.is_user(admin_id, db)
     if not user_data:
         return {"message": "Invalid admin/user id please signup first and login as admin"}
-    admin_data = users.check_isadmin(admin_id, db)
+    admin_data = auth.check_isadmin(admin_id, db)
     if admin_data:
         orders = db.query(models.Order).all()
         if not orders:
@@ -50,7 +48,7 @@ async def update_order_status(order_id: int, admin_id: int, request: schemas.Ord
     # user_data = users.is_user(admin_id, db)
     # if not user_data:
     #     return {"message": "Invalid admin id please signup first and login as admin"}
-    admin_data = users.check_isadmin(admin_id, db)
+    admin_data = auth.check_isadmin(admin_id, db)
     if admin_data:
         order = db.query(models.Order).filter(
             models.Order.order_id == order_id).first()
@@ -63,7 +61,7 @@ async def update_order_status(order_id: int, admin_id: int, request: schemas.Ord
         return order
     return {"message": "You are not an admin"}
 
-# get ordres by status [admin]
+# get orders by status [admin]
 # status_list = ["pending", "delivered", "cancelled"]
 
 
@@ -74,4 +72,3 @@ async def get_orders_by_status(status: str, db: Session = Depends(database.get_d
         raise HTTPException(
             status_code=404, detail=f"No orders found of {status} status")
     return orders
-

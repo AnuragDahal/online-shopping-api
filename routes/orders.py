@@ -7,7 +7,7 @@ from typing import List
 
 router = APIRouter(
     tags=["Orders"],
-    dependencies=[Depends(verify_token)]
+    dependencies=[Depends(verify_token)],
 )
 
 
@@ -18,6 +18,7 @@ async def create_order(req: schemas.Order, db: Session = Depends(database.get_db
             order_id=req.order_id,
             user_id=req.user_id,
             product_id=req.product_id,
+            quantity=req.quantity,
         )
         db.add(new_order)
         db.commit()
@@ -33,28 +34,32 @@ async def create_order(req: schemas.Order, db: Session = Depends(database.get_db
 @router.delete("/cancel-order/{order_id}", status_code=status.HTTP_200_OK)
 async def cancel_order(order_id: int, db: Session = Depends(database.get_db)):
     try:
-        order = db.query(models.Order).filter_by(
-            models.Order.order_id == order_id).first()
-        db.delete(order)
-        db.commit()
-        db.refresh(order)
-        return {"message": "Order has been cancelled"}
+        curr_user = auth.UserHandler(Request)
+        user_order = db.query(models.Order).filter(
+            models.Order.user_id == curr_user.user_id).first()
+        if user_order:
+            cancel_order = db.query(models.Order).filter(
+                models.Order.order_id == order_id).first()
+            db.delete(cancel_order)
+            db.commit()
+            db.refresh(cancel_order)
+            return {"message": "Order has been cancelled"}
     except Exception as e:
         raise HTTPException(status_code=400,
-                            detail="Order not found")
+                            detail=f"{e}, Error cancelling order")
 
 
 @router.get("/user/order/{user_id}", status_code=status.HTTP_200_OK)
 async def get_user_orders(user_id: int, db: Session = Depends(database.get_db)):
-    user_data = users.is_user(user_id, db)
-    if not user_data:
-        return {"message": "Invalid user id please signup first"}
-    orders = db.query(models.Order).filter(
-        models.Order.user_id == user_id).all()
-    if not orders:
+    try:
+        curr_user = auth.UserHandler(Request)
+        if curr_user.user_id == user_id:
+            orders = db.query(models.Order).filter(
+                models.Order.user_id == user_id).all()
+            return orders
+    except Exception as e:
         raise HTTPException(
-            status_code=404, detail="NO orders has been placed yet")
-    return orders
+            status_code=404, detail=f"{e}, Error fetching orders")
 
 
 # get status of a particular order

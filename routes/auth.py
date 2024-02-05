@@ -7,6 +7,8 @@ from datetime import timedelta
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
+from .jwt_token import verify_token
+from jose import JWTError, jwt
 
 import os
 
@@ -14,9 +16,8 @@ load_dotenv()
 
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.environ.get("Access_Token_Expire_Minutes"))
-
-
-get_db = database.get_db
+secret_key = os.environ.get("SECRET_KEY")
+ALGORITHM = os.environ.get("ALGORITHM")
 
 
 router = APIRouter(
@@ -28,6 +29,28 @@ TOKEN_TYPE = "bearer"
 TOKEN_KEY = "token"
 
 
+def UserHandler(request: Request, dependencies: Session = Depends(verify_token), db: Session = Depends(database.get_db)):
+    try:
+        cookie_token = request.cookies.get("token")
+        payload = jwt.decode(cookie_token, secret_key, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+
+        user = validate_email(email, db)
+
+        if user:
+            print(user)
+            return user
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+def validate_email(email: str, db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Email not found")
+    return user
+
+
 def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(
         models.User.user_id == admin_id).first()
@@ -36,15 +59,8 @@ def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
     return False
 
 
-def validate_email(email: str, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == email).first()
-    if not user:
-        raise HTTPException(status_code=400, detail="Email not found")
-    return user
-
-
 @router.post("/login", status_code=status.HTTP_200_OK)
-async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = validate_email(request.username, db)
     if user:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
