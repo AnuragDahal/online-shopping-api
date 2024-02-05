@@ -13,13 +13,19 @@ router = APIRouter(
 
 
 @router.put("/update-to-admin/{user_id}", status_code=status.HTTP_200_OK)
-async def UPDATEADMIN(user_id: int, admin_id: int, db: Session = Depends(database.get_db)):
+async def UPDATEADMIN(user_id: int, admin_id: int, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
     try:
         admin_data = auth.check_isadmin(admin_id, db)
         user_data = users.is_user(user_id, db)
+
         if admin_data and user_data:
             user_update = db.query(models.User).filter(
                 models.User.user_id == user_id).first()
+            user_update.is_admin = True
+            db.add(user_update)
+            db.commit()
+            db.refresh(user_update)
+            return {"message": "User has been updated to admin"}
     except Exception as e:
         raise HTTPException(status_code=400,
                             detail=f"{e}, Error updating user to admin")
