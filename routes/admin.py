@@ -71,10 +71,17 @@ async def update_order_status(order_id: int, admin_id: int, request: schemas.Ord
 # status_list = ["pending", "delivered", "cancelled"]
 
 
-@router.get("/getorders-bystatus/{status}", response_model=List[schemas.Order], status_code=status.HTTP_200_OK)
+@router.get("/getorders-bystatus", response_model=List[schemas.OrderStatus], status_code=status.HTTP_200_OK)
 async def get_orders_by_status(status: str, db: Session = Depends(database.get_db), current_user: schemas.UserLogin = Depends(oauth.get_current_user)):
-    orders = db.query(models.Order).filter(models.Order.status == status).all()
-    if not orders:
-        raise HTTPException(
-            status_code=404, detail=f"No orders found of {status} status")
-    return orders
+    try:
+        if status not in ["pending", "delivered", "cancelled"]:
+            raise HTTPException(
+                status_code=404, detail="Invalid status, status can be either pending, delivered or cancelled")
+        orders = db.query(models.Order).filter(
+            models.Order.status == status).all()
+        if not orders:
+            return {"message": "No orders found"}
+        return orders
+    except Exception as e:
+        raise HTTPException(status_code=404,
+                            detail=f"{e}, Error fetching orders")
