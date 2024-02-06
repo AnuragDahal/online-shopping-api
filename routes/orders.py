@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Depends, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Depends, Response
 from config import database, models, schemas
 from sqlalchemy.orm import Session
 from .import users, oauth, auth
 from .jwt_token import verify_token
 from typing import List
+from starlette.requests import Request
 
 router = APIRouter(
     tags=["Orders"],
@@ -32,9 +33,9 @@ async def create_order(req: schemas.Order, db: Session = Depends(database.get_db
 
 
 @router.delete("/cancel-order/{order_id}", status_code=status.HTTP_200_OK)
-async def cancel_order(order_id: int, db: Session = Depends(database.get_db)):
+async def cancel_order(order_id: int, request: Request, db: Session = Depends(database.get_db)):
     try:
-        curr_user = auth.UserHandler(Request)
+        curr_user = auth.UserHandler(request, db)
         user_order = db.query(models.Order).filter(
             models.Order.user_id == curr_user.user_id).first()
         if user_order:
@@ -49,17 +50,21 @@ async def cancel_order(order_id: int, db: Session = Depends(database.get_db)):
                             detail=f"{e}, Error cancelling order")
 
 
-@router.get("/user/order/{user_id}", status_code=status.HTTP_200_OK)
-async def get_user_orders(user_id: int, db: Session = Depends(database.get_db)):
-    try:
-        curr_user = auth.UserHandler(Request)
-        if curr_user.user_id == user_id:
-            orders = db.query(models.Order).filter(
-                models.Order.user_id == user_id).all()
-            return orders
-    except Exception as e:
+@router.get("/user/order/{user_id}", response_model=List[schemas.Order], status_code=status.HTTP_200_OK)
+async def get_user_orders(
+    user_id: int,
+    request: Request,
+    db: Session = Depends(database.get_db),
+):
+    current_user = auth.UserHandler(request, db)
+    print(current_user.user_id)
+    if current_user.user_id == user_id:
+        orders = db.query(models.Order).filter(
+            models.Order.user_id == user_id).all()
+        return orders
+    else:
         raise HTTPException(
-            status_code=404, detail=f"{e}, Error fetching orders")
+            status_code=404, detail="Error fetching orders")
 
 
 # get status of a particular order

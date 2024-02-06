@@ -29,26 +29,25 @@ TOKEN_TYPE = "bearer"
 TOKEN_KEY = "token"
 
 
-def UserHandler(request: Request, dependencies: Session = Depends(verify_token), db: Session = Depends(database.get_db)):
+def UserHandler(request: Request, session: Session = Depends(database.get_db)) -> models.User:
+    cookie_token = request.cookies.get("token")
+    payload = jwt.decode(cookie_token, secret_key, algorithms=[ALGORITHM])
+    email: str = payload.get("sub")
+    user = validate_email(email, session)
+    if user:
+        print(user)
+        return user
+
+
+def validate_email(email: str, session: Session):
     try:
-        cookie_token = request.cookies.get("token")
-        payload = jwt.decode(cookie_token, secret_key, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-
-        user = validate_email(email, db)
-
+        user = session.query(models.User).filter(
+            models.User.email == email).first()
         if user:
-            print(user)
             return user
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-def validate_email(email: str, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.email == email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Email not found")
-    return user
+        raise HTTPException(status_code=400,
+                            detail=f"{e}, validate_email error")
 
 
 def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
