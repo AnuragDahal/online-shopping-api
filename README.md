@@ -81,6 +81,6 @@ This project is licensed under the [MIT License](LICENSE). You are free to use, 
 
 ## Contact
 
-For any inquiries or support, please contact [your-email@example.com](mailto:your-email@example.com).
+For any inquiries or support, please contact [dahal.codecraft@gmail.com](mailto:dahal.codecraft@gmail.com).
 
-Happy coding! 🛍️
+Happy coding! 
