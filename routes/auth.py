@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from .jwt_token import verify_token
 from jose import JWTError, jwt
+from uuid import uuid1
 
 import os
 
@@ -87,3 +88,64 @@ async def logout(res: Response):
         return {"message": "Logged out"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+# forgot-password
+
+
+@router.post("/forgot-password", status_code=status.HTTP_200_OK)
+async def forgot_password(request: schemas.ForgotPassword, db: Session = Depends(database.get_db)):
+
+    """[summary] verify the email and send the reset token to the email
+    sending email is not implemented yet
+    """
+    email = request.email
+    is_user = validate_email(email, db)
+    if not is_user:
+        raise HTTPException(
+            status_code=404, detail="User with the email not found")
+    reset_token = str(uuid1())
+    set_token = {
+        "email": email,
+        "token": reset_token,
+    }
+    set_reset_token = models.ResetTokens(**set_token)
+    db.add(set_reset_token)
+    db.commit()
+    db.refresh(set_reset_token)
+    return reset_token
+
+# reset-password
+
+
+@router.post("/reset-password", status_code=status.HTTP_200_OK)
+async def reset_password(reset_token: str, new_pass: str, db: Session = Depends(database.get_db)):
+    """[summary] reset the password with the reset token
+    """
+    try:
+        reset_token = db.query(models.ResetTokens).filter(
+            models.ResetTokens.token == reset_token).first()
+        if not reset_token:
+            raise HTTPException(status_code=404, detail="Invalid reset token")
+        email = reset_token.email
+
+        # change the old password to new password
+        change_password(email, new_pass, db)
+
+        # delete the reset token after the password is reset
+        db.delete(reset_token)
+        db.commit()
+
+        return {"message": "Password reset successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+def change_password(email: str, new_pass: str, db: Session = Depends(database.get_db)):
+
+    user_details = db.query(models.User).filter(
+        models.User.email == email).first()
+    user_details.password = hash.Encryption.bcrypt(new_pass)
+    db.add(user_details)
+    db.commit()
+    db.refresh(user_details)
