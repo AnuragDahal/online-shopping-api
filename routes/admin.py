@@ -43,7 +43,8 @@ async def get_all_orders(admin_id: int, db: Session = Depends(database.get_db), 
             raise HTTPException(
                 status_code=404, detail="No orders has been placed yet")
         return orders
-    return {"message": "You are not an admin"}
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="You are not an admin")
 
 
 # update order status by admin
@@ -65,7 +66,8 @@ async def update_order_status(order_id: int, admin_id: int, request: schemas.Ord
         db.commit()
         db.refresh(order)
         return order
-    return {"message": "You are not an admin"}
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="You are not an admin")
 
 # get orders by status [admin]
 # status_list = ["pending", "delivered", "cancelled"]
