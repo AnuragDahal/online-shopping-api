@@ -69,6 +69,9 @@ class ShowParticularUser(BaseModel):
     class Config:
         from_attributes = True
 
+class ForgotPassword(BaseModel):
+    email: str
+
 
 # class UserOrders(BaseModel):
 #     order_id: int
