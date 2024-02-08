@@ -71,14 +71,6 @@ The API will be accessible at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 Explore the detailed API documentation at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) for information on available endpoints, request parameters, and response formats.
 
-## Contributing
-
-Refer to the guidelines in the [CONTRIBUTING.md](CONTRIBUTING.md) file if you wish to contribute to the development of this API.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute the code as per the terms of the license.
-
 ## Contact
 
 For any inquiries or support, please contact [dahal.codecraft@gmail.com](mailto:dahal.codecraft@gmail.com).
