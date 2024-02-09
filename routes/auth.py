@@ -36,7 +36,6 @@ def UserHandler(request: Request, session: Session = Depends(database.get_db)) -
     email: str = payload.get("sub")
     user = validate_email(email, session)
     if user:
-        print(user)
         return user
 
 
