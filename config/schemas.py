@@ -26,7 +26,7 @@ class Order(BaseModel):
     user_id: int
     product_id: int
     quantity: int
-    total: float
+    total: int
 
     class Config:
         from_attributes = True
@@ -68,6 +68,7 @@ class ShowParticularUser(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class ForgotPassword(BaseModel):
     email: str
