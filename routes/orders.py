@@ -20,6 +20,7 @@ async def create_order(req: schemas.Order, db: Session = Depends(database.get_db
             user_id=req.user_id,
             product_id=req.product_id,
             quantity=req.quantity,
+            total=req.total
         )
         db.add(new_order)
         db.commit()
@@ -43,7 +44,6 @@ async def cancel_order(order_id: int, request: Request, db: Session = Depends(da
                 models.Order.order_id == order_id).first()
             db.delete(cancel_order)
             db.commit()
-            db.refresh(cancel_order)
             return {"message": "Order has been cancelled"}
     except Exception as e:
         raise HTTPException(status_code=400,
