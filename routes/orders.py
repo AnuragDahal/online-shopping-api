@@ -34,17 +34,21 @@ async def create_order(req: schemas.Order, db: Session = Depends(database.get_db
 
 
 @router.delete("/cancel-order/{order_id}", status_code=status.HTTP_200_OK)
+
+
 async def cancel_order(order_id: int, request: Request, db: Session = Depends(database.get_db)):
     try:
         curr_user = auth.UserHandler(request, db)
         user_order = db.query(models.Order).filter(
-            models.Order.user_id == curr_user.user_id).first()
-        if user_order:
-            cancel_order = db.query(models.Order).filter(
+            models.Order.user_id == curr_user.user_id).all()
+        if order_id not in [order.order_id for order in user_order]:
+            raise HTTPException(
+                status_code=404, detail="Order not found, cannot cancel")    
+        cancel_order = db.query(models.Order).filter(
                 models.Order.order_id == order_id).first()
-            db.delete(cancel_order)
-            db.commit()
-            return {"message": "Order has been cancelled"}
+        db.delete(cancel_order)
+        db.commit()
+        return {"message": "Order has been cancelled"}
     except Exception as e:
         raise HTTPException(status_code=400,
                             detail=f"{e}, Error cancelling order")
