@@ -2,7 +2,7 @@ from fastapi import Request, Response, HTTPException, status
 from fastapi import HTTPException, status, Request, Response
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from config import schemas
+from models import schemas
 import os
 from dotenv import load_dotenv
 
@@ -23,28 +23,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=ALGORITHM)
     return encoded_jwt
 
-
-# async def verify_token(req: Request, res: Response):
-#     try:
-#         token = req.cookies.get("token")
-
-#         payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
-#         res=await
-#         email: str = payload.get("sub")
-#         if email is None:
-#             raise HTTPException(
-#                 status_code=status.HTTP_401_UNAUTHORIZED,
-#                 detail="Could not validate credentials: 'sub' claim missing",
-#                 headers={"WWW-Authenticate": "Bearer"},
-#             )
-#         token_data = schemas.TokenData(email=email)
-#         return token_data
-#     except JWTError:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Could not validate credentials",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
 
 
 async def verify_token(req: Request, res: Response):

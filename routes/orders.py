@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Depends, Response
-from config import database, models, schemas
+from settings import database
 from sqlalchemy.orm import Session
-from .import users, oauth, auth
-from .jwt_token import verify_token
+
+from models import models, schemas
+from ..utils import oauth
+from .import users, auth
+from ..utils.jwt_token import verify_token
 from typing import List
 from starlette.requests import Request
 

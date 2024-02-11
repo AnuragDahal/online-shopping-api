@@ -1,8 +1,11 @@
 from fastapi import HTTPException, Depends, status
 from fastapi import APIRouter, Depends, HTTPException, status
-from config import database, models, schemas
+from config import database
 from sqlalchemy.orm import Session
-from . import oauth, users, auth
+
+from models import models, schemas
+from ..utils import oauth
+from . import users, auth
 from typing import List
 
 router = APIRouter(
