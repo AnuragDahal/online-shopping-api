@@ -68,7 +68,3 @@ def GET_ORDERS_BY_STATUS(status: str, db: Session = Depends(database.get_db)):
     except Exception as e:
         raise HTTPException(status_code=404,
                             detail=f"{e}, Error fetching orders")
-    
-    
-    
-    
