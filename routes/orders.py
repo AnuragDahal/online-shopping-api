@@ -3,9 +3,9 @@ from settings import database
 from sqlalchemy.orm import Session
 
 from models import models, schemas
-from ..utils import oauth
+from utils import oauth
 from .import users, auth
-from ..utils.jwt_token import verify_token
+from utils.jwt_token import verify_token
 from typing import List
 from starlette.requests import Request
 
@@ -37,8 +37,6 @@ async def create_order(req: schemas.Order, db: Session = Depends(database.get_db
 
 
 @router.delete("/cancel-order/{order_id}", status_code=status.HTTP_200_OK)
-
-
 async def cancel_order(order_id: int, request: Request, db: Session = Depends(database.get_db)):
     try:
         curr_user = auth.UserHandler(request, db)
@@ -46,9 +44,9 @@ async def cancel_order(order_id: int, request: Request, db: Session = Depends(da
             models.Order.user_id == curr_user.user_id).all()
         if order_id not in [order.order_id for order in user_order]:
             raise HTTPException(
-                status_code=404, detail="Order not found, cannot cancel")    
+                status_code=404, detail="Order not found, cannot cancel")
         cancel_order = db.query(models.Order).filter(
-                models.Order.order_id == order_id).first()
+            models.Order.order_id == order_id).first()
         db.delete(cancel_order)
         db.commit()
         return {"message": "Order has been cancelled"}

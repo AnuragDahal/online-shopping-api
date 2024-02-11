@@ -4,9 +4,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from models import models, schemas
-from ..utils import hash
-from ..utils import oauth
-from ..utils.jwt_token import verify_token
+from utils import hash
+from utils.jwt_token import verify_token
 router = APIRouter(
     prefix="/users",
     tags=["Users"],

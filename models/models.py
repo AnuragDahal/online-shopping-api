@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DATETIME
 from sqlalchemy.orm import relationship, Mapped
-from ..settings.database import Base
+from settings.database import Base
 from datetime import datetime
 from fastapi import FastAPI
 from pydantic import BaseModel, EmailStr

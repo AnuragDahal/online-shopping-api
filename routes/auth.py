@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Request, Response, status
 from fastapi import APIRouter, Depends, status, HTTPException, Request
 from sqlalchemy.orm import Session
-from   settings import database
+from  settings import database
 from models import models, schemas
-from ..utils import jwt_token
-from ..utils import hash
+from utils import jwt_token,hash
 from datetime import timedelta
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
-from ..utils.jwt_token import verify_token
+from utils.jwt_token import verify_token
 from jose import JWTError, jwt
 from uuid import uuid1
 
