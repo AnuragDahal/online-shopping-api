@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey,DATETIME
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DATETIME
 from sqlalchemy.orm import relationship, Mapped
-from ..config.database import Base
+from ..settings.database import Base
 from datetime import datetime
 from fastapi import FastAPI
 from pydantic import BaseModel, EmailStr
@@ -44,6 +44,7 @@ async def create_user(user_in: UserIn):
     user_saved = fake_save_user(user_in)
     return user_saved
 
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -72,10 +73,10 @@ class Order(Base):
     users = relationship("User", back_populates="orders")
 
 
-class  ResetTokens(Base):
-    
-    __tablename__='ResetTokens'
-    
+class ResetTokens(Base):
+
+    __tablename__ = 'ResetTokens'
+
     id: Mapped[int] = Column(Integer, primary_key=True)
     email: Mapped[EmailStr] = Column(String, nullable=False)
     token: Mapped[str] = Column(String)

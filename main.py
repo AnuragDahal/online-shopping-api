@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from config import database
+from settings import database
 from models import models
 from routes import orders, users, admin, auth
 from fastapi.middleware.cors import CORSMiddleware
