@@ -14,7 +14,6 @@ router = APIRouter(
 
 # Update user to admin
 
-
 @router.put("/update-to-admin/{user_id}", status_code=status.HTTP_200_OK)
 async def update_to_admin(user_id: int, admin_id: int, current_user: schemas.UserLogin = Depends(oauth.get_current_user), db: Session = Depends(database.get_db)):
 
