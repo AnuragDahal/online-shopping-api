@@ -99,7 +99,7 @@ def RESET_PASSWORD(reset_token: str, new_pass: str, db: Session = Depends(databa
         email = reset_token.email
 
         # change the old password to new password
-        change_password(email, new_pass, db)
+        CHANGE_PASSWORD(email, new_pass, db)
 
         # delete the reset token after the password is reset
         db.delete(reset_token)
