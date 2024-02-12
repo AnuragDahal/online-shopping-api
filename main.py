@@ -5,10 +5,15 @@ from routes import orders, users, admin, auth
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
 app = FastAPI(
     title="Shopping Cart Api",
 )
+
+
+@app.on_event("startup")
+async def startup():
+    print("Server is running")
+
 
 app.add_middleware(
     CORSMiddleware,
