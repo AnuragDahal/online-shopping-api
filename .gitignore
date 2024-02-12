@@ -1,6 +1,6 @@
 # Ignore Python cache directories and files
 __pycache__/
-
+/vs code   
 
 # Ignore .env files
 .env
