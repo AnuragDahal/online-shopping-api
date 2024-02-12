@@ -7,6 +7,7 @@ __pycache__/
 pipfile.lock
 pizzashop.db
 tempcoderunner.py
+tempcoderunnerfile.py
 
 # Ignore temp files
 /temp
