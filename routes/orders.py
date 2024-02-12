@@ -39,6 +39,7 @@ async def cancel_order(order_id: int, request: Request, db: Session = Depends(da
 async def get_user_orders(
     user_id: int, request: Request, db: Session = Depends(database.get_db)
 ):
+    
     orders = GET_USER_ORDERS(user_id, request, db)
     return  orders
     
