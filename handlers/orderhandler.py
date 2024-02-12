@@ -4,7 +4,6 @@ from settings import database
 from models import models, schemas
 from handlers.authhandler import UserHandler
 
-
 def CREATE_ORDER(req: schemas.Order, db: Session = Depends(database.get_db)):
     try:
         new_order = models.Order(
