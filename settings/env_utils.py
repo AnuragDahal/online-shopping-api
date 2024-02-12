@@ -15,3 +15,4 @@ class Environment():
         self.INVALID_CREDENTIALS = "Invalid Credentials"
         self.TOKEN_TYPE = "bearer"
         self.TOKEN_KEY = "token"
+        self.TESTDATABASE_URL = os.environ.get("TEST_DATABASE_URL")
