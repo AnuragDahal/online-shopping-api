@@ -6,12 +6,7 @@ from handlers.authhandler import UserHandler
 
 def CREATE_ORDER(req: schemas.Order, db: Session = Depends(database.get_db)):
     try:
-        new_order = models.Order(
-            order_id=req.order_id,
-            user_id=req.user_id,
-            product_id=req.product_id,
-            quantity=req.quantity,
-            total=req.total
+        new_order = models.Order(**req.__dict__
         )
         db.add(new_order)
         db.commit()
