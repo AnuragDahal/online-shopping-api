@@ -8,6 +8,7 @@ pipfile.lock
 pizzashop.db
 tempcoderunner.py
 tempcoderunnerfile.py
-
+/tests
+test_PizzaShop.db
 # Ignore temp files
 /temp
