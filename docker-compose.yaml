@@ -1,6 +1,6 @@
 services:
   app:
-    build:
+    build: .
     container_name: myapp
     command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
     ports:
