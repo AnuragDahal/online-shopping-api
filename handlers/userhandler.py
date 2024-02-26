@@ -1,17 +1,12 @@
 from fastapi import HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from models import models, schemas
-from settings import database
+from settings.database import db_dependency
 from utils import hash
 from utils.jwt_token import verify_token
 
 
-
-
-
-
-
-def IS_USER(user_id: int, db: Session = Depends(database.get_db)):
+def IS_USER(user_id: int, db: db_dependency):
     try:
         user = db.query(models.User).filter(
             models.User.user_id == user_id).first()
@@ -22,7 +17,7 @@ def IS_USER(user_id: int, db: Session = Depends(database.get_db)):
             status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=str(e))
 
 
-def CREATE_USER(request: schemas.UserSignup, db: Session = Depends(database.get_db)):
+def CREATE_USER(request: schemas.UserSignup, db: db_dependency):
 
     # Check if the email already exists
     if db.query(models.User).filter(models.User.email == request.email).first():
@@ -37,24 +32,25 @@ def CREATE_USER(request: schemas.UserSignup, db: Session = Depends(database.get_
     db.commit()
     return {"message": "User created successfully"}
 
-def GET_ALL_USERS(db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
+
+def GET_ALL_USERS(db: db_dependency, dependencies: Session = Depends(verify_token)):
     user = db.query(models.User).all()
     if not user:
         raise HTTPException(status_code=404, detail="No users found")
     return user
 
 
-def GET_USER(email: str, db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
+def GET_USER(email: str, db: db_dependency, dependencies: Session = Depends(verify_token)):
     user = db.query(models.User).filter(
         models.User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-def GET_USER_BY_ID(user_id: int, db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
+
+def GET_USER_BY_ID(user_id: int, db: db_dependency, dependencies: Session = Depends(verify_token)):
     user = db.query(models.User).filter(
         models.User.user_id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-

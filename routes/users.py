@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from settings import database
+from settings.database import db_dependency
 from sqlalchemy.orm import Session
 from typing import List
 from models import schemas
@@ -19,21 +19,22 @@ router = APIRouter(
 
 
 @router.post("/Signup", status_code=status.HTTP_201_CREATED)
-async def create_user(request: schemas.UserSignup, db: Session = Depends(database.get_db)):
+async def create_user(request: schemas.UserSignup, db: db_dependency):
     new_user = CREATE_USER(request, db)
     return new_user
 
 
 @router.get("/getallusers", response_model=List[schemas.ShowAllUser], status_code=status.HTTP_200_OK)
-async def get_all_users(db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
-    
+async def get_all_users(db: db_dependency, dependencies: Session = Depends(verify_token)):
+
     user = GET_ALL_USERS(db)
     return user
 
 # get user details with email
 
+
 @router.get("/getuser/{email}", response_model=schemas.ShowParticularUser, status_code=status.HTTP_200_OK)
-async def get_user(email: str, db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
+async def get_user(email: str, db: db_dependency, dependencies: Session = Depends(verify_token)):
 
     user_details = GET_USER(email, db)
     return user_details
@@ -42,7 +43,7 @@ async def get_user(email: str, db: Session = Depends(database.get_db), dependenc
 
 
 @router.get("/getuserbyid/{user_id}", response_model=schemas.ShowParticularUser, status_code=status.HTTP_200_OK)
-async def get_user_by_id(user_id: int, db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
+async def get_user_by_id(user_id: int, db: db_dependency, dependencies: Session = Depends(verify_token)):
 
     user_by_id = GET_USER_BY_ID(user_id, db)
     return user_by_id
