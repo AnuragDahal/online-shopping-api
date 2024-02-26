@@ -28,7 +28,7 @@ async def create_order(req: schemas.Order, db: Session = Depends(database.get_db
 # cancel order
 
 
-@router.delete("/cancel-order/{order_id}", status_code=status.HTTP_200_OK)
+@router.delete("/cancel-order/{order_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def cancel_order(order_id: int, request: Request, db: Session = Depends(database.get_db)):
 
     cancelled_order = CANCEL_ORDER(order_id, request, db)
@@ -39,10 +39,9 @@ async def cancel_order(order_id: int, request: Request, db: Session = Depends(da
 async def get_user_orders(
     user_id: int, request: Request, db: Session = Depends(database.get_db)
 ):
-    
+
     orders = GET_USER_ORDERS(user_id, request, db)
-    return  orders
-    
+    return orders
 
 
 # get status of a particular order
