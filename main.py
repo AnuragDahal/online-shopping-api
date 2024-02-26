@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from settings.database import  engine
+from settings import database
 from models import models
 from routes import orders, users, admin, auth
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,7 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=database.engine)
 
 app.include_router(auth.router)
 app.include_router(users.router)

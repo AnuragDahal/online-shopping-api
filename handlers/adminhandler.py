@@ -1,12 +1,12 @@
 from fastapi import HTTPException, Depends, status
-from settings.database import db_dependency
+from settings import database
 from models import schemas, models
 from utils import oauth
 from sqlalchemy.orm import Session
 from routes import users
 
 
-def check_isadmin(admin_id: int, db: db_dependency):
+def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(
         models.User.user_id == admin_id).first()
     if user and user.is_admin == True:
@@ -14,7 +14,7 @@ def check_isadmin(admin_id: int, db: db_dependency):
     return False
 
 
-def UPDATE_ADMIN(user_id: int, admin_id: int, db: db_dependency):
+def UPDATE_ADMIN(user_id: int, admin_id: int, db: Session = Depends(database.get_db)):
     try:
         admin_data = check_isadmin(admin_id, db)
         user_data = users.is_user(user_id, db)
@@ -32,7 +32,7 @@ def UPDATE_ADMIN(user_id: int, admin_id: int, db: db_dependency):
                             detail=f"{e}, Error updating user to admin")
 
 
-def GET_ALL_ORDERS(admin_id: int, db: db_dependency):
+def GET_ALL_ORDERS(admin_id: int, db: Session = Depends(database.get_db)):
     user_data = users.is_user(admin_id, db)
     if not user_data:
         return {"message": "Invalid admin/user id please signup first and login as admin"}
@@ -47,7 +47,7 @@ def GET_ALL_ORDERS(admin_id: int, db: db_dependency):
                         detail="You are not an admin")
 
 
-def UPDATE_ORDER_STATUS(order_id: int, admin_id: int, request: schemas.OrderStatus, db: db_dependency) -> schemas.OrderStatus:
+def UPDATE_ORDER_STATUS(order_id: int, admin_id: int, request: schemas.OrderStatus, db: Session = Depends(database.get_db)) -> schemas.OrderStatus:
 
     admin_data = check_isadmin(admin_id, db)
     if admin_data:
@@ -64,7 +64,7 @@ def UPDATE_ORDER_STATUS(order_id: int, admin_id: int, request: schemas.OrderStat
                         detail="You are not an admin")
 
 
-def GET_ORDERS_BY_STATUS(status: str, db: db_dependency):
+def GET_ORDERS_BY_STATUS(status: str, db: Session = Depends(database.get_db)):
     try:
         if status not in ["pending", "delivered", "cancelled"]:
             raise HTTPException(

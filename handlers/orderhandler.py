@@ -1,16 +1,13 @@
-from fastapi import HTTPException, Request
-from settings.database import db_dependency
+from fastapi import Depends, HTTPException, Request
+from sqlalchemy.orm import Session
+from settings import database
 from models import models, schemas
 from handlers.authhandler import UserHandler
 
-
-def CREATE_ORDER(req: schemas.Order, db: db_dependency):
+def CREATE_ORDER(req: schemas.Order, db: Session = Depends(database.get_db)):
     try:
-        new_order = models.Order(**req.model_dump(exclude={"product"}))
-        for product in req.product:
-            new_product = models.Products(
-                **product.model_dump(exclude={"order_id"}))
-            db.add(new_product)
+        new_order = models.Order(**req.__dict__
+        )
         db.add(new_order)
         db.commit()
         db.refresh(new_order)
@@ -19,7 +16,7 @@ def CREATE_ORDER(req: schemas.Order, db: db_dependency):
         raise HTTPException(status_code=400, detail=f"{e}, Order not created")
 
 
-def CANCEL_ORDER(order_id: int, request: Request, db: db_dependency):
+def CANCEL_ORDER(order_id: int, request: Request, db: Session = Depends(database.get_db)):
     try:
         curr_user = UserHandler(request, db)
         user_order = db.query(models.Order).filter(
@@ -37,7 +34,7 @@ def CANCEL_ORDER(order_id: int, request: Request, db: db_dependency):
                             detail=f"{e}, Error cancelling order")
 
 
-def GET_USER_ORDERS(user_id: int, request: Request, db: db_dependency):
+def GET_USER_ORDERS(user_id: int, request: Request, db: Session = Depends(database.get_db)):
     try:
         current_user = UserHandler(request, db)
         if current_user.user_id == user_id:
@@ -49,7 +46,7 @@ def GET_USER_ORDERS(user_id: int, request: Request, db: db_dependency):
             status_code=404, detail=f"{e}, Error fetching orders")
 
 
-def GET_ORDER_STATUS(order_id: int, db: db_dependency):
+def GET_ORDER_STATUS(order_id: int, db: Session = Depends(database.get_db)):
     order = db.query(models.Order).filter(
         models.Order.order_id == order_id).first()
     if not order:

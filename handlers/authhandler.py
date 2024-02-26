@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
-from settings.database import db_dependency
+from settings import database
 from models import models, schemas
 from utils import jwt_token, hash
 from datetime import timedelta
@@ -40,7 +40,7 @@ def validate_email(email: str, session: Session):
                             detail=f"{e}, validate_email error")
 
 
-def LOGIN_USER(db: db_dependency, request: OAuth2PasswordRequestForm = Depends(),):
+def LOGIN_USER(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = validate_email(request.username, db)
     if user:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -67,7 +67,7 @@ def LOGOUT(res: Response):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-def FORGOT_PASSWORD(request: schemas.ForgotPassword, db: db_dependency):
+def FORGOT_PASSWORD(request: schemas.ForgotPassword, db: Session = Depends(database.get_db)):
     """[summary] verify the email and send the reset token to the email
     sending email is not implemented yet
     """
@@ -88,7 +88,7 @@ def FORGOT_PASSWORD(request: schemas.ForgotPassword, db: db_dependency):
     return reset_token
 
 
-def RESET_PASSWORD(reset_token: str, new_pass: str, db: db_dependency):
+def RESET_PASSWORD(reset_token: str, new_pass: str, db: Session = Depends(database.get_db)):
     """[summary] reset the password with the reset token
     """
     try:
@@ -111,7 +111,7 @@ def RESET_PASSWORD(reset_token: str, new_pass: str, db: db_dependency):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-def CHANGE_PASSWORD(email: str, new_pass: str, db: db_dependency):
+def CHANGE_PASSWORD(email: str, new_pass: str, db: Session = Depends(database.get_db)):
 
     user_details = db.query(models.User).filter(
         models.User.email == email).first()

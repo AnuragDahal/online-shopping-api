@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Response, status
 from fastapi import APIRouter, Depends, status, HTTPException, Request
 from sqlalchemy.orm import Session
-from settings.database import db_dependency
+from settings import database
 from models import models, schemas
 from utils import jwt_token, hash
 from datetime import timedelta
@@ -23,7 +23,7 @@ router = APIRouter(
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
-async def login(request: OAuth2PasswordRequestForm = Depends(), db:db_dependency):
+async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
 
     user_login = LOGIN_USER(request, db)
     return user_login
@@ -42,7 +42,7 @@ async def logout(res: Response):
 
 
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
-async def forgot_password(request: schemas.ForgotPassword, db:db_dependency):
+async def forgot_password(request: schemas.ForgotPassword, db: Session = Depends(database.get_db)):
 
     reset_token = FORGOT_PASSWORD(request, db)
     return reset_token
@@ -51,7 +51,7 @@ async def forgot_password(request: schemas.ForgotPassword, db:db_dependency):
 
 
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
-async def reset_password(reset_token: str, new_pass: str, db:db_dependency):
+async def reset_password(reset_token: str, new_pass: str, db: Session = Depends(database.get_db)):
 
     reset = RESET_PASSWORD(reset_token, new_pass, db)
     return reset
