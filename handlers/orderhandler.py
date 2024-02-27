@@ -34,7 +34,7 @@ def CANCEL_ORDER(order_id: int, request: Request, db: Session = Depends(database
             models.Order.order_id == order_id).first()
         db.delete(cancel_order)
         db.commit()
-        return {"message": "Order has been cancelled"}
+        return {"message": "Order and associated products have been cancelled"}
     except Exception as e:
         ErrorHandler.Error(e)
 

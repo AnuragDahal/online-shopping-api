@@ -29,7 +29,7 @@ class Order(Base):
     status: Mapped[str] = mapped_column(String, default="pending")
     # Define a many-to-one relationship to User
     users = relationship("User", back_populates="orders")
-    products = relationship("Products", back_populates="order")
+    products = relationship("Products", back_populates="order", cascade="all, delete-orphan")
 
 
 class ResetTokens(Base):
