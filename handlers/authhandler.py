@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from jose import jwt
 from uuid import uuid1
+from utils.exceptions import ErrorHandler
 
 from settings.env_utils import Environment
 
@@ -36,8 +37,7 @@ def validate_email(email: str, session: Session):
         if user:
             return user
     except Exception as e:
-        raise HTTPException(status_code=400,
-                            detail=f"{e}, validate_email error")
+        ErrorHandler.Error(e)
 
 
 def LOGIN_USER(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
@@ -64,7 +64,7 @@ def LOGOUT(res: Response):
         res.delete_cookie(TOKEN_KEY)
         return {"message": "Logged out"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        ErrorHandler.Forbidden("Unable to logout user")
 
 
 def FORGOT_PASSWORD(request: schemas.ForgotPassword, db: Session = Depends(database.get_db)):
@@ -74,8 +74,7 @@ def FORGOT_PASSWORD(request: schemas.ForgotPassword, db: Session = Depends(datab
     email = request.email
     is_user = validate_email(email, db)
     if not is_user:
-        raise HTTPException(
-            status_code=404, detail="User with the email not found")
+        ErrorHandler.Unauthorized("User with this Email not found")
     reset_token = str(uuid1())
     set_token = {
         "email": email,
@@ -108,7 +107,7 @@ def RESET_PASSWORD(reset_token: str, new_pass: str, db: Session = Depends(databa
         return {"message": "Password reset successfully"}
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        ErrorHandler.Error(e)
 
 
 def CHANGE_PASSWORD(email: str, new_pass: str, db: Session = Depends(database.get_db)):
