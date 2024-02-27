@@ -53,7 +53,6 @@ class ShowAllUser(BaseModel):
 
 class OrderStatus(BaseModel):
     order_id: int
-    product_id: int
     user_id: int
     status: str
 

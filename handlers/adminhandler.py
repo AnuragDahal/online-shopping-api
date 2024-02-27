@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from routes import users
 from utils.exceptions import ErrorHandler
 from handlers import userhandler
+from sqlalchemy.orm import joinedload
 
 
 def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
@@ -39,25 +40,37 @@ def GET_ALL_ORDERS(admin_id: int, db: Session = Depends(database.get_db)):
         return {"message": "Invalid admin/user id please signup first and login as admin"}
     admin_data = check_isadmin(admin_id, db)
     if admin_data:
-        orders = db.query(models.Order).all()
+        orders = db.query(models.Order).options(
+            joinedload(models.Order.products)).all()
         if not orders:
-            ErrorHandler.NotFound("No orders found")
+            raise HTTPException(status_code=404, detail="No orders found")
+
+        orders_list = []
+        for order in orders:
+            order_dict = {c.name: getattr(order, c.name)
+                          for c in order.__table__.columns}
+            order_dict["product"] = [{c.name: getattr(
+                product, c.name) for c in product.__table__.columns} for product in order.products]
+            orders_list.append(order_dict)
+
+        return orders_list
+
     ErrorHandler.Unauthorized("You are not an admin")
 
 
-def UPDATE_ORDER_STATUS(order_id: int, admin_id: int, request: schemas.OrderStatus, db: Session = Depends(database.get_db)) -> schemas.OrderStatus:
+def UPDATE_ORDER_STATUS(order_id: int, admin_id: int, status: str, db: Session = Depends(database.get_db)) -> schemas.OrderStatus:
 
     admin_data = check_isadmin(admin_id, db)
     if admin_data:
         order = db.query(models.Order).filter(
             models.Order.order_id == order_id).first()
         if not order:
-            raise HTTPException(status_code=404, detail="Order not found")
-        order.status = request.status
+            ErrorHandler.NotFound("Order not found")
+        order.status = status
         db.add(order)
         db.commit()
         db.refresh(order)
-        return order
+        return [order]
     ErrorHandler.Unauthorized("You are not an admin")
 
 
