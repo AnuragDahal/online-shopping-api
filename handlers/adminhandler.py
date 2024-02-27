@@ -4,6 +4,7 @@ from models import schemas, models
 from utils import oauth
 from sqlalchemy.orm import Session
 from routes import users
+from utils.exceptions import ErrorHandler
 
 
 def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
@@ -28,8 +29,7 @@ def UPDATE_ADMIN(user_id: int, admin_id: int, db: Session = Depends(database.get
             db.refresh(user_update)
             return {"message": "User has been updated to admin"}
     except Exception as e:
-        raise HTTPException(status_code=400,
-                            detail=f"{e}, Error updating user to admin")
+        ErrorHandler.Unauthorized(e)
 
 
 def GET_ALL_ORDERS(admin_id: int, db: Session = Depends(database.get_db)):
@@ -40,11 +40,8 @@ def GET_ALL_ORDERS(admin_id: int, db: Session = Depends(database.get_db)):
     if admin_data:
         orders = db.query(models.Order).all()
         if not orders:
-            raise HTTPException(
-                status_code=404, detail="No orders has been placed yet")
-        return orders
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="You are not an admin")
+            ErrorHandler.NotFound("No orders found")
+    ErrorHandler.Unauthorized("You are not an admin")
 
 
 def UPDATE_ORDER_STATUS(order_id: int, admin_id: int, request: schemas.OrderStatus, db: Session = Depends(database.get_db)) -> schemas.OrderStatus:
@@ -60,20 +57,18 @@ def UPDATE_ORDER_STATUS(order_id: int, admin_id: int, request: schemas.OrderStat
         db.commit()
         db.refresh(order)
         return order
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="You are not an admin")
+    ErrorHandler.Unauthorized("You are not an admin")
 
 
 def GET_ORDERS_BY_STATUS(status: str, db: Session = Depends(database.get_db)):
     try:
         if status not in ["pending", "delivered", "cancelled"]:
-            raise HTTPException(
-                status_code=404, detail="Invalid status, status can be either pending, delivered or cancelled")
+            ErrorHandler.NotFound(
+                "Invalid status, status can be either pending, delivered or cancelled")
         orders = db.query(models.Order).filter(
             models.Order.status == status).all()
         if not orders:
             return {"message": "No orders found"}
         return orders
     except Exception as e:
-        raise HTTPException(status_code=404,
-                            detail=f"{e}, Error fetching orders")
+        ErrorHandler.Error(e)
