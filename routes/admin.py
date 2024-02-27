@@ -12,7 +12,8 @@ from utils import oauth
 from typing import List
 
 router = APIRouter(
-    tags=["Admin"]
+    tags=["Admin"],
+    dependencies=[Depends(oauth.get_current_user)]
 )
 
 # Update user to admin
