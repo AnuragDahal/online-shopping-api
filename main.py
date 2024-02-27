@@ -5,6 +5,10 @@ from routes import orders, users, admin, auth
 from fastapi.middleware.cors import CORSMiddleware
 
 
+app = FastAPI()
+
+# Your routes and other application code go here
+
 app = FastAPI(
     title="Shopping Cart Api",
 )

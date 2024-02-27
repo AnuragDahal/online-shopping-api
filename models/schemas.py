@@ -7,7 +7,6 @@ class UserSignup(BaseModel):
     name: str
     email: str
     password: str
-    time: Optional[str]
 
     class Config:
         from_attributes = True

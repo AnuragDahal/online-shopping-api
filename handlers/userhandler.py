@@ -4,11 +4,8 @@ from models import models, schemas
 from settings import database
 from utils import hash
 from utils.jwt_token import verify_token
-
-
-
-
-
+from utils.exceptions import ErrorHandler
+import logging
 
 
 def IS_USER(user_id: int, db: Session = Depends(database.get_db)):
@@ -26,21 +23,21 @@ def CREATE_USER(request: schemas.UserSignup, db: Session = Depends(database.get_
 
     # Check if the email already exists
     if db.query(models.User).filter(models.User.email == request.email).first():
-        raise HTTPException(status_code=400, detail="Email already exists")
+        ErrorHandler.Conflict("Email already exists")
     hashed_password = hash.Encryption.bcrypt(request.password)
     # Create a new user
     new_user = models.User(
-        name=request.name, email=request.email, password=hashed_password)
-
+        **request.model_dump(exclude={"password"}), password=hashed_password)
     # Add the new user to the database
     db.add(new_user)
     db.commit()
     return {"message": "User created successfully"}
 
+
 def GET_ALL_USERS(db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
     user = db.query(models.User).all()
     if not user:
-        raise HTTPException(status_code=404, detail="No users found")
+        ErrorHandler.NotFound("No user found")
     return user
 
 
@@ -48,13 +45,13 @@ def GET_USER(email: str, db: Session = Depends(database.get_db), dependencies: S
     user = db.query(models.User).filter(
         models.User.email == email).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        ErrorHandler.NotFound("User not found")
     return user
+
 
 def GET_USER_BY_ID(user_id: int, db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
     user = db.query(models.User).filter(
         models.User.user_id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        ErrorHandler.NotFound("User not found")
     return user
-

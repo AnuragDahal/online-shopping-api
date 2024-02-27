@@ -18,5 +18,5 @@ class ErrorHandler:
     def ServerError(e):
         raise HTTPException(status_code=500, detail=str(e))
 
-    def ALreadyExists(e):
+    def Conflict(e):
         raise HTTPException(status_code=409, detail=str(e))
