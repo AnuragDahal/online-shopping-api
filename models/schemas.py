@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class UserSignup(BaseModel):
@@ -20,12 +20,22 @@ class UserLogin(BaseModel):
         from_attributes = True
 
 
+class Product(BaseModel):
+    order_id: int
+    product_id: int
+    name: Optional[str]
+    quantity: int
+    price: int
+    total: int
+
+    class Config:
+        from_attributes = True
+
+
 class Order(BaseModel):
     order_id: int
     user_id: int
-    product_id: int
-    quantity: int
-    total: int
+    product: List[Product]
 
     class Config:
         from_attributes = True
@@ -71,27 +81,3 @@ class ShowParticularUser(BaseModel):
 
 class ForgotPassword(BaseModel):
     email: str
-
-
-# class UserOrders(BaseModel):
-#     order_id: int
-#     user_id: int
-#     product_id: int
-#     quantity: int
-#     product_name: str
-#     total: float
-
-#     class Config:
-#         from_attributes = True
-
-
-# class ShowAllOrders(BaseModel):
-#     order_id: int
-#     user_id: int
-#     product_id: int
-#     quantity: int
-#     product_name: str
-#     total: float
-
-#     class Config:
-#         from_attributes = True
