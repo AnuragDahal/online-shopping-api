@@ -55,12 +55,15 @@ def GET_ORDERS_BY_ID(order_id: int, db: Session):
         models.Order.order_id == order_id).first()
 
     if order is None:
-        return ErrorHandler.NotFound("Order not found")
+        ErrorHandler.NotFound("Order not found")
 
-    order_dict = {c.name: getattr(order, c.name)
-                  for c in order.__table__.columns}
-    order_dict["product"] = [{c.name: getattr(
-        product, c.name) for c in product.__table__.columns} for product in order.products]
+    order_columns = order.__table__.columns
+    order_dict = {c.name: getattr(order, c.name) for c in order_columns}
+
+    if order.products:
+        product_columns = order.products[0].__table__.columns
+        order_dict["product"] = [{c.name: getattr(
+            product, c.name) for c in product_columns} for product in order.products]
 
     return [order_dict]
 
