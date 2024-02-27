@@ -1,7 +1,8 @@
 # Ignore Python cache directories and files
 __pycache__/
 /vs code   
-
+.vscode
+/**vscode**/
 # Ignore .env files
 .env
 pipfile.lock
@@ -10,5 +11,6 @@ tempcoderunner.py
 tempcoderunnerfile.py
 /tests
 test_PizzaShop.db
+
 # Ignore temp files
 /temp
