@@ -5,6 +5,7 @@ from utils import oauth
 from sqlalchemy.orm import Session
 from routes import users
 from utils.exceptions import ErrorHandler
+from handlers import userhandler
 
 
 def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
@@ -18,7 +19,7 @@ def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
 def UPDATE_ADMIN(user_id: int, admin_id: int, db: Session = Depends(database.get_db)):
     try:
         admin_data = check_isadmin(admin_id, db)
-        user_data = users.is_user(user_id, db)
+        user_data = userhandler.IS_USER(user_id, db)
 
         if admin_data and user_data:
             user_update = db.query(models.User).filter(
@@ -33,7 +34,7 @@ def UPDATE_ADMIN(user_id: int, admin_id: int, db: Session = Depends(database.get
 
 
 def GET_ALL_ORDERS(admin_id: int, db: Session = Depends(database.get_db)):
-    user_data = users.is_user(admin_id, db)
+    user_data = userhandler.IS_USER(admin_id, db)
     if not user_data:
         return {"message": "Invalid admin/user id please signup first and login as admin"}
     admin_data = check_isadmin(admin_id, db)

@@ -4,16 +4,20 @@ from settings import database
 from models import models, schemas
 from handlers.authhandler import UserHandler
 from utils.exceptions import ErrorHandler
+from sqlalchemy.orm import joinedload
 
 
 def CREATE_ORDER(req: schemas.Order, db: Session = Depends(database.get_db)):
     try:
-        new_order = models.Order(**req.model_dump(exclude=None))
-
+        new_order = models.Order(**req.model_dump(exclude={"product"}))
+        for items in req.product:
+            product_data = models.Products(
+                **items.model_dump(exclude={"order_id"}), order_id=new_order.order_id)
+            db.add(product_data)
+            db.commit()
         db.add(new_order)
         db.commit()
-        db.refresh(new_order)
-        return new_order
+        return req
     except Exception as e:
         ErrorHandler.Error(e)
 
@@ -44,6 +48,21 @@ def GET_USER_ORDERS(user_id: int, request: Request, db: Session = Depends(databa
             return orders
     except Exception as e:
         ErrorHandler.NotFound(e)
+
+
+def GET_ORDERS_BY_ID(order_id: int, db: Session):
+    order = db.query(models.Order).options(joinedload(models.Order.products)).filter(
+        models.Order.order_id == order_id).first()
+
+    if order is None:
+        return ErrorHandler.NotFound("Order not found")
+
+    order_dict = {c.name: getattr(order, c.name)
+                  for c in order.__table__.columns}
+    order_dict["product"] = [{c.name: getattr(
+        product, c.name) for c in product.__table__.columns} for product in order.products]
+
+    return [order_dict]
 
 
 def GET_ORDER_STATUS(order_id: int, db: Session = Depends(database.get_db)):

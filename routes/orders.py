@@ -9,7 +9,8 @@ from handlers.orderhandler import (
     CREATE_ORDER,
     CANCEL_ORDER,
     GET_USER_ORDERS,
-    GET_ORDER_STATUS
+    GET_ORDER_STATUS,
+    GET_ORDERS_BY_ID,
 )
 
 
@@ -50,3 +51,10 @@ async def get_order_status(order_id: int, db: Session = Depends(database.get_db)
 
     order_status = GET_ORDER_STATUS(order_id, db)
     return order_status
+
+
+@router.get("/users/orders/{order_id}", response_model=List[schemas.Order], status_code=status.HTTP_200_OK)
+async def get_orders_by_id(order_id: int, db: Session = Depends(database.get_db)):
+
+    orders = GET_ORDERS_BY_ID(order_id, db)
+    return orders

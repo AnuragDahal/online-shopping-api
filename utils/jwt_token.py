@@ -24,7 +24,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-
 async def verify_token(req: Request, res: Response):
     try:
         token = req.cookies.get("token")
