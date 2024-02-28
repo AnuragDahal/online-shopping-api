@@ -12,11 +12,10 @@ def CREATE_ORDER(req: schemas.Order, db: Session = Depends(database.get_db)):
     db.add(new_order)
     db.commit()
     for items in req.product:
-        product_data = models.Products(
-            **items.model_dump(exclude={"order_id"}), order_id=new_order.order_id)
+        product_data = models.Products(**items.model_dump(exclude=None))
         db.add(product_data)
         db.commit()
-    return req
+    return [req]
 
 
 def CANCEL_ORDER(order_id: int, request: Request, db: Session = Depends(database.get_db)):

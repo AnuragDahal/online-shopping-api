@@ -24,7 +24,7 @@ router = APIRouter(
 async def create_order(req: schemas.Order, db: Session = Depends(database.get_db)):
 
     new_order = CREATE_ORDER(req, db)
-    return new_order
+    return [new_order]
 
 # cancel order
 
