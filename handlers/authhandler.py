@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from jose import jwt
 from uuid import uuid1
 from utils.exceptions import ErrorHandler
-
+from utils.hash import Encryption
 from settings.env_utils import Environment
 
 env = Environment()
@@ -40,8 +40,15 @@ def validate_email(email: str, session: Session):
         ErrorHandler.Error(e)
 
 
+def validate_user(email: str, password: str, session: Session):
+    user = session.query(models.User).filter(
+        models.User.email == email).first()
+    if user and Encryption.check_pw(user.password, password):
+        return user
+
+
 def LOGIN_USER(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
-    user = validate_email(request.username, db)
+    user = validate_user(request.username, request.password, db)
     if user:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = jwt_token.create_access_token(
@@ -56,7 +63,7 @@ def LOGIN_USER(request: OAuth2PasswordRequestForm = Depends(), db: Session = Dep
                             expires=access_token_expires.total_seconds())
 
         return response
-    return {"message": "Invalid credentials"}
+    return ErrorHandler.Unauthorized("Invalid email or password")
 
 
 def LOGOUT(res: Response):
