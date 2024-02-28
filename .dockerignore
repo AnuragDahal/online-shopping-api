@@ -5,5 +5,5 @@ __pycache__/
 *.log
 .DS_Store
 .git
-.gitignore
+tempcoderunner.py
 *.md

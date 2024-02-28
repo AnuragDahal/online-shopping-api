@@ -9,13 +9,13 @@ from sqlalchemy.orm import joinedload
 
 def CREATE_ORDER(req: schemas.Order, db: Session = Depends(database.get_db)):
     new_order = models.Order(**req.model_dump(exclude={"product"}))
+    db.add(new_order)
+    db.commit()
     for items in req.product:
         product_data = models.Products(
             **items.model_dump(exclude={"order_id"}), order_id=new_order.order_id)
         db.add(product_data)
         db.commit()
-    db.add(new_order)
-    db.commit()
     return req
 
 

@@ -1,7 +1,7 @@
 services:
   app:
     build: .
-    container_name: myapp
+    container_name: shopping-api
     command: uvicorn main:app --host 0.0.0.0 --port 80 --reload
     ports:
       - 8000:80
