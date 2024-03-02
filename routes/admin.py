@@ -1,5 +1,4 @@
-from fastapi import HTTPException, Depends, status
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Request, status
 from settings import database
 from sqlalchemy.orm import Session
 from handlers.adminhandler import (
@@ -20,9 +19,9 @@ router = APIRouter(
 
 
 @router.put("/update-to-admin/{user_id}", status_code=status.HTTP_200_OK)
-async def update_to_admin(user_id: int, admin_id: int, db: Session = Depends(database.get_db)):
+async def update_to_admin(user_id: int, req: Request, admin_id: int, db: Session = Depends(database.get_db)):
 
-    updated_user = UPDATE_ADMIN(user_id, admin_id, db)
+    updated_user = UPDATE_ADMIN(user_id, req, admin_id, db)
     return updated_user
 
 

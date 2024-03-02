@@ -21,6 +21,9 @@ TOKEN_TYPE = env.TOKEN_TYPE
 TOKEN_KEY = env.TOKEN_KEY
 
 
+
+
+
 def UserHandler(request: Request, session: Session = Depends(database.get_db)) -> models.User:
     cookie_token = request.cookies.get("token")
     payload = jwt.decode(cookie_token, secret_key, algorithms=[ALGORITHM])
