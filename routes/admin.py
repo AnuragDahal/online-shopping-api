@@ -8,7 +8,6 @@ from handlers.adminhandler import (
     UPDATE_ORDER_STATUS,
     GET_ORDERS_BY_STATUS)
 from models import schemas
-from utils import oauth
 from typing import List
 
 router = APIRouter(

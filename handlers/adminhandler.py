@@ -1,7 +1,6 @@
 from fastapi import HTTPException, Depends, Request
 from settings import database
 from models import schemas, models
-from utils import oauth
 from sqlalchemy.orm import Session
 from routes import users
 from utils.exceptions import ErrorHandler
