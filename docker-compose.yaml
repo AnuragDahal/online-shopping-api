@@ -20,7 +20,7 @@ services:
     environment:
       POSTGRES_DB: cartapi
     ports:
-      - 5432:5432
+      - 5000:5432
     networks:
       - app-network
 
