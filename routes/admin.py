@@ -13,7 +13,7 @@ from typing import List
 
 router = APIRouter(
     tags=["Admin"],
-    # dependencies=[Depends(oauth.get_current_user)]
+
 )
 
 # Update user to admin
