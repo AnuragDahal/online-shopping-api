@@ -7,7 +7,7 @@ from routes import users
 from utils.exceptions import ErrorHandler
 from handlers import userhandler
 from sqlalchemy.orm import joinedload
-from handlers.authhandler import UserHandler
+from handlers.authhandler import UserHandler, verify_admin
 
 
 def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
@@ -18,25 +18,20 @@ def check_isadmin(admin_id: int, db: Session = Depends(database.get_db)):
     return False
 
 
-def UPDATE_ADMIN(user_id: int, request: Request, admin_id: int, db: Session = Depends(database.get_db)):
+def UPDATE_ADMIN(user_id: int, db: Session = Depends(database.get_db), admin: bool = Depends(verify_admin)):
     try:
         # first check whether the user logged in is admin himself or not
-        logged_in_user = UserHandler(request, db)
-        admin_data = logged_in_user.is_admin == True
-
-        if not admin_data:
-            ErrorHandler.Unauthorized(
-                "logged in user is not an admin please login as admin to update user to admin")
-        # check the validation of the user to be updated to admin
-        user_data = userhandler.IS_USER(user_id, db)
-        if admin_data and user_data:
-            user_update = db.query(models.User).filter(
-                models.User.user_id == user_id).first()
-            user_update.is_admin = True
-            db.add(user_update)
-            db.commit()
-            db.refresh(user_update)
-            return {"message": "User has been updated to admin"}
+        if admin:
+            # check the validation of the user to be updated to admin
+            user_data = userhandler.IS_USER(user_id, db)
+            if user_data:
+                user_update = db.query(models.User).filter(
+                    models.User.user_id == user_id).first()
+                user_update.is_admin = True
+                db.add(user_update)
+                db.commit()
+                db.refresh(user_update)
+                return {"message": "User has been updated to admin"}
     except Exception as e:
         ErrorHandler.Unauthorized(e)
 

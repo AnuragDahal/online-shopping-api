@@ -11,6 +11,7 @@ from uuid import uuid1
 from utils.exceptions import ErrorHandler
 from utils.hash import Encryption
 from settings.env_utils import Environment
+from typing import Annotated
 
 env = Environment()
 
@@ -21,7 +22,15 @@ TOKEN_TYPE = env.TOKEN_TYPE
 TOKEN_KEY = env.TOKEN_KEY
 
 
-
+def verify_admin(request: Request, session: Session = Depends(database.get_db)):
+    cookie_token = request.cookies.get("token")
+    payload = jwt.decode(cookie_token, secret_key, algorithms=[ALGORITHM])
+    email: str = payload.get("sub")
+    user = session.query(models.User).filter(
+        models.User.email == email).first()
+    if not user or not user.is_admin:
+        ErrorHandler.Unauthorized("User logged in is not an admin")
+    return True
 
 
 def UserHandler(request: Request, session: Session = Depends(database.get_db)) -> models.User:
