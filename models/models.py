@@ -9,7 +9,8 @@ from pydantic import BaseModel, EmailStr
 class User(Base):
     __tablename__ = 'users'
 
-    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, index=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String)
     email: Mapped[str] = mapped_column(String, nullable=False)
     password: Mapped[str] = mapped_column(String)

@@ -11,6 +11,6 @@ tempcoderunner.py
 tempcoderunnerfile.py
 /tests
 test_PizzaShop.db
-
+db.env
 # Ignore temp files
 /temp

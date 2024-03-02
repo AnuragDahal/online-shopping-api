@@ -3,22 +3,32 @@ from settings import database
 from models import models
 from routes import orders, users, admin, auth
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import OperationalError
+from contextlib import asynccontextmanager
+import time
+from sqlalchemy import text
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    while True:
+        try:
+            # Try to create a new session to check if the database is ready
+            db = next(database.get_db())
+            db.execute(text('SELECT 1'))
+            break
+        except OperationalError:
+            print("Database is not ready yet, waiting...")
+            time.sleep(1)
 
-# Your routes and other application code go here
+    # Initialize the database
+    models.Base.metadata.create_all(bind=database.engine)
+    yield
 
 app = FastAPI(
-    title="Shopping Cart Api",
+    lifespan=lifespan,
+    title="Shopping Cart Api"
 )
-
-
-@app.on_event("startup")
-async def startup():
-    print("Server is running")
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,8 +36,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-models.Base.metadata.create_all(bind=database.engine)
 
 app.include_router(auth.router)
 app.include_router(users.router)

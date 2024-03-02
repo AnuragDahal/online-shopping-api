@@ -26,11 +26,12 @@ async def create_user(request: schemas.UserSignup, db: Session = Depends(databas
 
 @router.get("/getallusers", response_model=List[schemas.ShowAllUser], status_code=status.HTTP_200_OK)
 async def get_all_users(db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
-    
+
     user = GET_ALL_USERS(db)
     return user
 
 # get user details with email
+
 
 @router.get("/getuser/{email}", response_model=schemas.ShowParticularUser, status_code=status.HTTP_200_OK)
 async def get_user(email: str, db: Session = Depends(database.get_db), dependencies: Session = Depends(verify_token)):
