@@ -5,7 +5,7 @@ from routes import orders, users, admin, auth
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import OperationalError
 from contextlib import asynccontextmanager
-import time
+import asyncio
 from sqlalchemy import text
 
 
@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
             break
         except OperationalError:
             print("Database is not ready yet, waiting...")
-            time.sleep(1)
+            await asyncio.sleep(1)
 
     # Initialize the database
     models.Base.metadata.create_all(bind=database.engine)
