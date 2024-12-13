@@ -37,6 +37,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Shopping Cart API.Navigate to /docs to use the API via swagger"}
+
+
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(orders.router)
