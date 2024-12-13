@@ -3,7 +3,7 @@
 ## Overview
 
 This repository contains an API for online shopping stores, built using FastAPI. The API provides essential features for user authentication, order management, and administrative tasks for online shopping platforms or marts.
-[Vist here to see the API in action](https://shopme-eu8w.onrender.com/docs)
+[Vist here to see the API in action](https://shopping-api-dun.vercel.app)
 First load may take some time due to the server being in sleep mode.
 
 ## Features
