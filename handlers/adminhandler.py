@@ -1,8 +1,7 @@
-from fastapi import HTTPException, Depends, Request
+from fastapi import HTTPException, Depends
 from settings import database
 from models import schemas, models
 from sqlalchemy.orm import Session
-from routes import users
 from utils.exceptions import ErrorHandler
 from handlers import userhandler
 from sqlalchemy.orm import joinedload

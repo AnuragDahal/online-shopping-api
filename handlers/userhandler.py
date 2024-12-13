@@ -5,7 +5,6 @@ from settings import database
 from utils import hash
 from utils.jwt_token import verify_token
 from utils.exceptions import ErrorHandler
-import logging
 
 
 def IS_USER(user_id: int, db: Session = Depends(database.get_db)):

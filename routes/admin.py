@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from settings import database
 from sqlalchemy.orm import Session
 from handlers.authhandler import verify_admin

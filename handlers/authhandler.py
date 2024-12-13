@@ -11,7 +11,6 @@ from uuid import uuid1
 from utils.exceptions import ErrorHandler
 from utils.hash import Encryption
 from settings.env_utils import Environment
-from typing import Annotated
 
 env = Environment()
 

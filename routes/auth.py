@@ -1,20 +1,14 @@
-from fastapi import APIRouter, Request, Response, status
-from fastapi import APIRouter, Depends, status, HTTPException, Request
+from fastapi import APIRouter, Response, status, Depends
 from sqlalchemy.orm import Session
 from settings import database
-from models import models, schemas
-from utils import jwt_token, hash
-from datetime import timedelta
+from models import schemas
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.responses import JSONResponse
 from handlers.authhandler import (
     LOGIN_USER,
     LOGOUT,
     FORGOT_PASSWORD,
     RESET_PASSWORD
 )
-
-from uuid import uuid1
 
 
 router = APIRouter(

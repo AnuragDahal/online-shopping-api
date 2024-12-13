@@ -2,8 +2,7 @@ from sqlalchemy import Integer, String, Boolean, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from settings.database import Base
 from datetime import datetime
-from fastapi import FastAPI
-from pydantic import BaseModel, EmailStr
+from pydantic import  EmailStr
 
 
 class User(Base):
