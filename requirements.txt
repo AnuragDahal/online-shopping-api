@@ -5,9 +5,7 @@ DateTime==5.4
 fastapi==0.109.2
 python_jose==3.3.0
 SQLAlchemy==2.0.23
-typing==3.7.4.3
 uvicorn==0.25.0
 python-multipart==0.0.7
-DateTime==5.4
 psycopg2-binary==2.9.9
 bcrypt==4.1.3
